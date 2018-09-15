@@ -1,3 +1,7 @@
+# THIS PROJECT IS NOT READY YET
+
+...so don't bother downloading it.
+
 # ctax
 
 A crypto currency tax calculator. 

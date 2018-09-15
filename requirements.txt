@@ -6,4 +6,3 @@ forex_python==1.1
 SQLAlchemy==1.2.11
 sqlalchemy_utc==0.10.0
 PyYAML==3.13
-python-coveralls==2.9.1

@@ -29,3 +29,6 @@
 
 # pytest
 .pytest_cache
+
+# coverage
+.coverage
