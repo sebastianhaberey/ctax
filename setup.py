@@ -8,5 +8,5 @@ setup(
     author_email='sebastian@haberey.com',
     license='MIT',
     python_requires='>=3',
-    install_requires=['sqlalchemy', 'ccxt', 'python-dateutil'],
+    install_requires=['sqlalchemy', 'ccxt', 'python-dateutil', 'cryptocompy'],
 )

@@ -26,3 +26,6 @@
 
 # Project-specific files and directories
 /run/
+
+# pytest
+.pytest_cache
