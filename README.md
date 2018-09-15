@@ -7,6 +7,7 @@
 A crypto currency tax calculator. 
 
 [![Build Status](https://travis-ci.org/sebastianhaberey/ctax.svg?branch=master)](https://travis-ci.org/sebastianhaberey/ctax)
+[![Coverage Status](https://coveralls.io/repos/github/sebastianhaberey/ctax/badge.svg?branch=master)](https://coveralls.io/github/sebastianhaberey/ctax?branch=master)
 
 ## Introduction
 
