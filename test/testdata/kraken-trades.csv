@@ -1,0 +1,3 @@
+"txid","ordertxid","pair","time","type","ordertype","price","cost","fee","vol","margin","misc","ledgers","postxid","posstatus","cprice","ccost","cfee","cvol","cmargin","net","trades"
+"ABCDEF-GHIJK-LMNOPQ","XXXXXX-XXXXX-XXXXXX","XXBTZEUR","2017-02-15 18:00:20.000","buy","limit",1000.0,20.8,0.05,0.02,0.00000,"","LNBQGZ-X3UYD-3KX56S,LEA6FG-IPIH6-5JPBSM",,,,,,,,,
+"AAAAAA-AAAAA-AAAAAA","XXXXXX-XXXXX-XXXXXX","XETHZUSD","2017-02-15 18:00:21.000","sell","limit",150.1,1900.2,0.02,15.3,0.00000,"","AAAAAA-BBBBB-CCCCCC,DDDDDD-EEEEE-FFFFFF",,,,,,,,,

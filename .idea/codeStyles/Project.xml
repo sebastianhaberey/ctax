@@ -1,0 +1,16 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="FORMATTER_TAGS_ENABLED" value="true" />
+    <option name="FORMATTER_TAGS_ACCEPT_REGEXP" value="true" />
+    <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
+    <Python>
+      <option name="NEW_LINE_AFTER_COLON" value="true" />
+      <option name="DICT_WRAPPING" value="2" />
+      <option name="DICT_NEW_LINE_BEFORE_RIGHT_BRACE" value="true" />
+    </Python>
+    <codeStyleSettings language="Python">
+      <option name="KEEP_LINE_BREAKS" value="false" />
+      <option name="WRAP_LONG_LINES" value="true" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>
