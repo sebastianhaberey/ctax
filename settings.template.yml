@@ -1,5 +1,5 @@
 #
-# ctax configuration file
+# cryptotax configuration file
 #
 
 # the tax currency - all cost / revenue / profit items will be converted to and listed in tax currency
@@ -9,16 +9,6 @@ tax-currency: 'EUR'
 # the tax year - only trades from this year will be included in the calculations
 #
 tax-year: 2017
-
-# which application step to start (useful to skip steps)
-#
-# the following steps are performed by the application (in this order):
-#
-# 1: query orders / trades / transactions (from configured exchange APIs) and persist them in the DB
-# 2: find exchange rate for each transaction (from configured exchange rate files / exchange rate APIs) and persists them in the DB
-# 3: calculate profit / loss
-#
-start-step: 3
 
 # import of trades from files (csv)
 #
@@ -89,24 +79,6 @@ files:
         name: 'type'
         regex: '^(sell)$'
 
-# import of exchange rates from files (csv)
-#
-# - each subsection configures one file to import
-# - the sample file included shows the required structure
-# - files are read in the order listed here
-# - if there are two values for exactly the same currency pair and time, the more recently imported value will replace the previous one
-#
-exchange-rate-files:
-
-  - id: 'ecb-EUR'
-    description: 'ECB foreign exchange reference rates (https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html)'
-    file: 'exchange-rates-EUR.csv'
-    base-currency: 'EUR'
-    delimiter: ','
-    quotechar: '"'
-    encoding: 'utf8'
-    empty-marker: 'N/A'
-
 # exchanges to query
 #
 # - currently only orders / trades / transactions  (transaction types BUY, SELL, FEE) will be queried
@@ -136,6 +108,24 @@ exchanges:
 
     # api secret
     secret: ''
+
+# import of exchange rates from files (csv)
+#
+# - each subsection configures one file to import
+# - the sample file included shows the required structure
+# - files are read in the order listed here
+# - if there are two values for exactly the same currency pair and time, the more recently imported value will replace the previous one
+#
+exchange-rate-files:
+
+  - id: 'ecb-EUR'
+    description: 'ECB foreign exchange reference rates (https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html)'
+    file: 'exchange-rates-EUR.csv'
+    base-currency: 'EUR'
+    delimiter: ','
+    quotechar: '"'
+    encoding: 'utf8'
+    empty-marker: 'N/A'
 
 # whether to query currency exchange rates from cryptocompare.com, ratesapi.io
 #

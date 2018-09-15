@@ -48,9 +48,9 @@ def init_logging(configuration):
     Initializes logging
     """
 
-    filename = configuration.get('logging', 'filename', default='log.txt')
-    level_file = configuration.get('logging', 'level-file', default='INFO')
-    level_console = configuration.get('logging', 'level-console', default='INFO')
+    filename = configuration.get('logging', 'filename')
+    level_file = configuration.get('logging', 'level-file')
+    level_console = configuration.get('logging', 'level-console')
 
     root_logger = logging.getLogger()
 
@@ -102,7 +102,7 @@ def query_transactions(configuration):
                 orders.extend(CcxtOrderImporter(exchange).fetch_orders(date_from, date_to, symbols=symbols))
                 break
             except NetworkError as e:
-                retry_interval = configuration.get('retry-interval', default=30)
+                retry_interval = configuration.get('retry-interval')
                 logging.error(f'Network error. Retrying in {retry_interval}s.')
                 time.sleep(retry_interval)
 

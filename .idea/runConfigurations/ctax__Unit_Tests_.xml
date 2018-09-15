@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="cryptotax Unit Tests" type="tests" factoryName="Unittests">
+  <configuration default="false" name="ctax (Unit Tests)" type="tests" factoryName="Unittests">
     <module name="ctax" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

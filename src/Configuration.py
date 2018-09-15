@@ -103,7 +103,6 @@ class Configuration:
         tax_year = self.get_mandatory('tax-year')
         return datetime(tax_year, 1, 1, tzinfo=UTC)
 
-
     def get_date_to(self):
         """
         Returns the start of the year after the configured tax year.
@@ -111,5 +110,3 @@ class Configuration:
 
         tax_year = self.get_mandatory('tax-year')
         return datetime(tax_year + 1, 1, 1, tzinfo=UTC)
-
-
