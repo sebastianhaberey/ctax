@@ -1,0 +1,8 @@
+setuptools==40.2.0
+ccxt==1.17.295
+cryptocompy==0.1.1.dev1
+python_dateutil==2.7.3
+forex_python==1.1
+SQLAlchemy==1.2.11
+sqlalchemy_utc==0.10.0
+PyYAML==3.13
