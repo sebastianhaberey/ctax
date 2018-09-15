@@ -1,9 +1,13 @@
+import os
 from decimal import Decimal
 from unittest import TestCase
 
 from src.Configuration import Configuration
 from src.CsvOrderImporter import CsvOrderImporter
 from src.bo.Transaction import TransactionType
+
+TESTDATA_DATA_FILE_BITFINEX = os.path.join(os.path.dirname(__file__), 'testdata', 'bitfinex-trades.csv')
+TESTDATA_DATA_FILE_KRAKEN = os.path.join(os.path.dirname(__file__), 'testdata', 'kraken-trades.csv')
 
 TESTDATA_CONFIGURATION_BITFINEX = """
 
@@ -12,7 +16,7 @@ tax-year: 2017
 files:
 
 - exchange: 'bitfinex'
-  files: ['testdata/bitfinex-trades.csv']
+  files: ['${FILENAME}']
   delimiter: ','
   quotechar: '"'
   encoding: 'utf8'
@@ -50,7 +54,7 @@ tax-year: 2017
 files:
 
 - exchange: 'kraken'
-  files: ['testdata/kraken-trades.csv']
+  files: ['${FILENAME}']
   delimiter: ','
   quotechar: '"'
   encoding: 'utf8'
@@ -86,7 +90,7 @@ files:
 class TestCsvOrderImporter(TestCase):
 
     def test_import_orders_bitfinex(self):
-        importer = CsvOrderImporter(Configuration(TESTDATA_CONFIGURATION_BITFINEX))
+        importer = self.create_importer(TESTDATA_CONFIGURATION_BITFINEX, TESTDATA_DATA_FILE_BITFINEX)
 
         orders = importer.import_orders()
         self.assertEqual(2, len(orders))
@@ -134,7 +138,7 @@ class TestCsvOrderImporter(TestCase):
         self.assertEqual(Decimal("1.3"), fee.amount)
 
     def test_import_orders_kraken(self):
-        importer = CsvOrderImporter(Configuration(TESTDATA_CONFIGURATION_KRAKEN))
+        importer = self.create_importer(TESTDATA_CONFIGURATION_KRAKEN, TESTDATA_DATA_FILE_KRAKEN)
 
         orders = importer.import_orders()
         self.assertEqual(2, len(orders))
@@ -180,3 +184,8 @@ class TestCsvOrderImporter(TestCase):
         self.assertIsNotNone(fee)
         self.assertEqual("USD", fee.currency)
         self.assertEqual(Decimal("0.02"), fee.amount)
+
+    @staticmethod
+    def create_importer(configuration, file):
+        configuration = Configuration(configuration.replace('${FILENAME}', file))
+        return CsvOrderImporter(configuration)
