@@ -7,7 +7,6 @@ DEFAULT_OUTPUT_PRECISION = 2  # default precision for human readable output
 # set decimal precision globally
 getcontext().prec = DEFAULT_PRECISION
 
-# TODO add more precisions (retrieve from exchanges?)
 PRECISIONS = {
     'ETH': '5',
     'BTC': '5',

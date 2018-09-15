@@ -66,8 +66,6 @@ class CsvOrderImporter(object):
         if (timestamp < self._date_from) or (timestamp >= self._date_to):
             return None  # skip rows where date is outside tax year
 
-        # todo how to determine correct currency symbols?
-
         transactions = []
         # currencies = exchange.currencies
 

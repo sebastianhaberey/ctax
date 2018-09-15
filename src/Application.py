@@ -37,7 +37,6 @@ def get_working_dir():
     Returns the directory where the application data is to be read and stored.
     """
     if getattr(sys, 'frozen', False):
-        # ToDo: this returns path to executable, not working directory
         return os.path.dirname(sys.executable)
     elif __file__:
         return os.getcwd()

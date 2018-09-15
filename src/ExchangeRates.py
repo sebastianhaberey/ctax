@@ -26,8 +26,6 @@ def is_fiat(currency):
     """
     Returns true if the specified currency is a fiat currency.
     """
-    # TODO automatically determine if currency is fiat (via ccxt info?)
-    # TODO what to do about USDT and other tethers?
     return currency == 'EUR' or currency == 'USD'
 
 
@@ -146,7 +144,7 @@ class ExchangeRates:
 
             for data in result:
 
-                rate = value_to_decimal(data['close'])  # TODO maybe use average instead of closing price?
+                rate = value_to_decimal(data['close'])
                 timestamp = parse_date(data['time'])
                 exchange_rate = ExchangeRate(base_currency, quote_currency, rate, timestamp,
                                              self._sources['cryptocompare'])
@@ -170,7 +168,6 @@ class ExchangeRates:
                 return None
             logging.info(f'Got one result')
         except RatesNotAvailableError as e:
-            # TODO handle this somehow -> retry?
             raise e
 
         return ExchangeRate(base_currency, quote_currency, rate, timestamp, self._sources['ratesapi'])

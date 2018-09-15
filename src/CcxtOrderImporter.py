@@ -77,7 +77,6 @@ class CcxtOrderImporter:
         Imports orders for the specified symbols.
         Some exchanges such as Bitfinex will only respond with transactions for the specified symbols.
         Others such as Kraken will respond with transcations for all symbols.
-        TODO query long list of orders (not tested yet)
         """
 
         logging.info(f'exchange: {self._exchange.id}')
