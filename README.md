@@ -1,6 +1,8 @@
 # ctax
 
-A crypto currency tax calculator.
+A crypto currency tax calculator. 
+
+[![Build Status](https://travis-ci.org/sebastianhaberey/ctax.svg?branch=master)](https://travis-ci.org/sebastianhaberey/ctax)
 
 ## Introduction
 
