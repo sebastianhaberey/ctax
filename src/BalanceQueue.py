@@ -99,7 +99,7 @@ class BalanceQueue:
     def __str__(self) -> str:
         amounts = []
         for currency in self.queues:
-            amounts.append(currency_to_string(self.queues[currency].get_balance(), currency))
+            amounts.append(currency_to_string(self.get_balance('currency'), currency))
         return f'{amounts}'
 
 

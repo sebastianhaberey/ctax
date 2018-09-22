@@ -33,14 +33,14 @@ if __name__ == "__main__":
     elif mode == 'import-exchange-rates':
 
         logging.info('importing exchange rates')
-        orders = load_orders(session, configuration)
+        orders = load_orders(session)
         delete_exchange_rate_data(session)
         find_exchange_rates(session, orders, configuration)
 
     elif mode == 'calculate-profit':
 
         logging.info('calculating profit / loss')
-        orders = load_orders(session, configuration)
+        orders = load_orders(session)
         calculate_profit_loss(orders, configuration)
 
     logging.info('done')

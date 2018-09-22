@@ -96,7 +96,7 @@ def query_transactions(configuration):
             try:
                 orders.extend(CcxtOrderImporter(exchange).fetch_orders(date_from, date_to, symbols=symbols))
                 break
-            except NetworkError as e:
+            except NetworkError:
                 retry_interval = configuration.get('retry-interval')
                 logging.error(f'Network error. Retrying in {retry_interval}s.')
                 time.sleep(retry_interval)
@@ -160,7 +160,7 @@ def save_orders(session, received_orders):
                  f'{new_count} added')
 
 
-def load_orders(session, configuration):
+def load_orders(session):
     """
     Retrieves all transaction groups in the specified time range.
     """
@@ -204,6 +204,7 @@ def find_exchange_rates(session, orders, configuration):
     session.commit()
 
 
+# noinspection PyUnusedLocal TODO
 def calculate_profit_loss(orders, configuration):
     """
     Calculates profit / loss from trades.
@@ -215,53 +216,33 @@ def calculate_profit_loss(orders, configuration):
     date_from = configuration.get_date_from()
     date_to = configuration.get_date_to()
 
-    logging.info(f'date, '
-                 f'exchange, '
-                 f'buy amount, '
-                 f'buy currency, '
+    logging.info(f'date / time, '
+                 f'transaction id, '
                  f'sell amount, '
                  f'sell currency, '
-                 f'sell amount (in tax currency), '
-                 f'tax currency, '
-                 f'fee, '
+                 f'sell exchange rate, '
+                 f'sell exchange rate date / time, '
+                 f'sell exchange rate source, '
+                 f'sell value in {tax_currency}, '
+                 f'buy amount, '
+                 f'buy currency, '
+                 f'buy exchange rate, '
+                 f'buy exchange rate date / time, '
+                 f'buy exchange rate source, '
+                 f'buy value in {tax_currency}, '
+                 f'fee amount, '
                  f'fee currency, '
-                 f'fee (in tax currency), '
-                 f'tax currency')
+                 f'fee exchange rate, '
+                 f'fee exchange rate date / time, '
+                 f'fee exchange rate source, '
+                 f'fee value in {tax_currency}, '
+                 f'FIFO entries, '
+                 f'cost {tax_currency}, '
+                 f'buying fees {tax_currency}, '
+                 f'cost + buying fees {tax_currency}, '
+                 f'proceeds {tax_currency}, '
+                 f'selling fees {tax_currency}, '
+                 f'proceeds + selling fees {tax_currency}, '
+                 f'profit / loss {tax_currency}')
 
-    # TODO go through all trades and output the following information
-    #
-    # transaction ID
-    # date / time
-    #
-    # sell amount
-    # sell currency
-    # sell exchange rate
-    # sell exchange rate date / time
-    # sell exchange rate source
-    # sell value in EUR
-    #
-    # buy amount
-    # buy currency
-    # buy exchange rate
-    # buy exchange rate date / time
-    # buy exchange rate source
-    # buy value in EUR
-    #
-    # fee
-    # fee currency
-    # fee exchange rate
-    # fee exchange rate date / time
-    # fee exchange rate source
-    # fee value in EUR
-    #
-    # FIFO entries -> "#1 (50.0%), #2 (30.7%), ? (19.3%)"
-    #
-    # cost (EUR)
-    # buying fees (EUR)
-    # cost + buying fees (EUR)
-    #
-    # proceeds (EUR)
-    # selling fees (EUR)
-    # proceeds - selling fees (EUR)
-    #
-    # profit / loss (EUR)
+    # TODO go through all trades and output the preceding information (see #12)

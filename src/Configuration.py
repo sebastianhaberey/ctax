@@ -3,16 +3,7 @@ from datetime import datetime
 import yaml
 from dateutil.tz import UTC
 
-from src.DateUtils import parse_date
-
-
-class ConfigurationError(Exception):
-    """
-    Signals an error while accessing the configuration.
-    """
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
+from src.Error import Error
 
 
 class Configuration:
@@ -27,8 +18,8 @@ class Configuration:
             obj = cls(stream)
             stream.close()
             return obj
-        except FileNotFoundError as exc:
-            raise ConfigurationError(f'configuration file not found: {file_name}') from None
+        except FileNotFoundError:
+            raise Error(f'configuration file not found: {file_name}') from None
 
     @classmethod
     def from_string(cls, text):
@@ -37,14 +28,8 @@ class Configuration:
     def __init__(self, stream):
         try:
             self.configuration = yaml.load(stream)
-        except yaml.YAMLError as exc:
-            raise ConfigurationError(f'invalid configuration format in file {file_name}: {exc.msg}') from None
-
-    def __getitem__(self, key):
-        return self.configuration[key]
-
-    def __setitem__(self, key, value):
-        self.configuration[value] = value
+        except yaml.YAMLError:
+            raise Error(f'error parsing configuration: {stream}') from None
 
     def get(self, *keys, default=None):
         """
@@ -54,7 +39,7 @@ class Configuration:
         value = self.configuration
         for key in keys:
             if not isinstance(key, str):
-                raise ConfigurationError(f'illegal configuration key: {keys}')
+                raise Error(f'invalid configuration key: {key} (key must be string)')
             if key in value:
                 value = value[key]
             else:
@@ -70,7 +55,7 @@ class Configuration:
 
         value = self.get(*args, default=None)
         if value is None:
-            raise ConfigurationError(f'mandatory configuration item not found: {".".join(args)}')
+            raise Error(f'mandatory configuration item not found: {".".join(args)}')
         return value
 
     def is_true(self, *args, default=False):
@@ -78,22 +63,6 @@ class Configuration:
         Checks if a boolean value in the configuration tree is true.
         """
         return self.get(*args, default=default) is True
-
-    def exists(self, *args):
-        """
-        Checks if a boolean value in the configuration tree exists and is not empty.
-        """
-        return self.get(*args, default=None) is not None
-
-    def get_date(self, *args, default=None):
-        """
-        Returns the specified date from the configuration.
-        Must be in ISO8601 format (example: 2017-01-01T00:00:00.000Z).
-        """
-        value = self.get(*args, default=None)
-        if value is None:
-            return default
-        return parse_date(value)
 
     def get_date_from(self):
         """

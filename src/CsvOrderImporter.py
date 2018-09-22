@@ -50,14 +50,14 @@ class CsvOrderImporter(object):
                 logging.info(f'importing trades from file {file}')
                 with column_reader(section, file) as reader:
                     for column in reader:
-                        trade = self.get_trade(exchange, column)
+                        trade = self.get_trade(column)
                         order = Order(trade.source_id, exchange_id)
                         order.trades = [trade]
                         orders.append(order)
 
         return orders
 
-    def get_trade(self, exchange, column):
+    def get_trade(self, column):
         """
         Extracts a trade with three transactions (BUY, SELL, FEE) from the specified column.
         """

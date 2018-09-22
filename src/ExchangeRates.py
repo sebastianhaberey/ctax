@@ -3,14 +3,13 @@ import logging
 import time
 from datetime import timedelta
 
+from cryptocompy import price
 from forex_python.converter import CurrencyRates, RatesNotAvailableError
 
-from cryptocompy import price
 from src.DateUtils import parse_date, date_to_simple_string
 from src.NumberUtils import value_to_decimal
 from src.bo.ExchangeRate import ExchangeRate
 from src.bo.ExchangeRateSource import ExchangeRateSource
-from src.bo.Transaction import Transaction
 
 
 class ExchangeRateImportError(Exception):
@@ -61,6 +60,8 @@ class ExchangeRates:
         :returns: an exchange entry or None if no entry was found
         """
 
+        exchange_rate = None
+
         if self._exchange_rates is not None:
             exchange_rate = self._get_exchange_rate_from_memory(base_currency, quote_currency, timestamp)
 
@@ -88,11 +89,8 @@ class ExchangeRates:
         a = base_currency
         b = quote_currency
 
-        flip = False
-
         if a not in self._exchange_rates:
             a, b = b, a
-            flip = True
             if a not in self._exchange_rates:
                 return None
 

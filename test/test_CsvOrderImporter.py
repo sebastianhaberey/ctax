@@ -187,5 +187,5 @@ class TestCsvOrderImporter(TestCase):
 
     @staticmethod
     def create_importer(configuration, file):
-        configuration = Configuration(configuration.replace('${FILENAME}', file))
+        configuration = Configuration.from_string(configuration.replace('${FILENAME}', file))
         return CsvOrderImporter(configuration)

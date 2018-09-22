@@ -4,9 +4,9 @@ from decimal import Decimal
 from src.bo.Transaction import Transaction, TransactionType
 
 
-def create_transaction(id):
+def create_transaction(transaction_id):
     transaction = Transaction()
-    transaction.id = id
+    transaction.id = transaction_id
     transaction.trade_id = 10
     transaction.amount = '10.5'
     transaction.type = TransactionType.FEE

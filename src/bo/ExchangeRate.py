@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
 
-from src.DateUtils import date_to_simple_string, date_to_simple_string_with_time
+from src.DateUtils import date_to_simple_string_with_time
 from src.NumberUtils import scaled_integer_to_decimal, value_to_scaled_integer, currency_to_string
 from src.bo.ExchangeRateSource import ExchangeRateSource
 from src.bo.Base import Base

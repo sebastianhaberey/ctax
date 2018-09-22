@@ -113,4 +113,4 @@ class ColumnReader:
         try:
             return match.group(1)
         except IndexError:
-            raise Error(f'missing match group in regex for column: {column_id}')
+            raise Error(f'missing match group in regex for column: {csv_column_name}')

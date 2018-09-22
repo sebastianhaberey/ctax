@@ -51,7 +51,7 @@ class TestExchangeRates(TestCase):
         document = TESTDATA_CONFIGURATION
         document = document.replace('${FILENAME1}', TESTDATA_DATA_FILE_1)
         document = document.replace('${FILENAME2}', TESTDATA_DATA_FILE_2)
-        self.configuration = Configuration(document)
+        self.configuration = Configuration.from_string(document)
         self.exchange_rates = ExchangeRates(self.configuration)
 
     def test_get_exchange_rate(self):
@@ -75,7 +75,6 @@ class TestExchangeRates(TestCase):
         self.assertEqual(Decimal('1.1934'), rate.rate)
 
     def test_exchange_rate_attributes(self):
-
         rate = self.exchange_rates.get_exchange_rate('EUR', 'USD', datetime(2018, 5, 10, tzinfo=UTC))
 
         self.assertEqual('EUR', rate.base_currency)
