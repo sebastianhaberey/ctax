@@ -54,6 +54,8 @@ class Trade(Base):
     timestamp = Column(UtcDateTime)
 
     # list of transactions belonging to the trade
+    # this could currently be replaced by three one-to-one relationships (sell, buy, fee),
+    # but it's likely there will be more than one fee per transaction in future versions
     transactions = relationship("Transaction")
 
     def __init__(self, source_id, timestamp, transactions):
@@ -73,14 +75,14 @@ class Trade(Base):
         return items
 
     def get_transaction(self, transaction_type):
-        results = list(filter(lambda transaction: transaction.type == transaction_type, self.transactions))
+        results = self._get_transactions(transaction_type)
         count = len(results)
         if count != 1:
             raise Error(f'expected exactly one transaction of type {transaction_type.name}, but got {count}')
         return results[0]
 
-    def get_transactions(self, transaction_type):
-        return filter(lambda transaction: transaction.type == transaction_type, self.transactions)
+    def _get_transactions(self, transaction_type):
+        return list(filter(lambda transaction: transaction.type == transaction_type, self.transactions))
 
     def __eq__(self, other):
         return equals(self, other, relaxed_order=True)  # order of transactions may vary because of DB

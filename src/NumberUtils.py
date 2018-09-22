@@ -13,6 +13,21 @@ PRECISIONS = {
 }
 
 
+def remove_exponent(value, precision=DEFAULT_PRECISION):
+    """
+    Removes exponent or trailing zeroes for better readability.
+    https://stackoverflow.com/a/18769210
+    """
+    integral_value = value.to_integral_value()
+
+    # only remove exponent if integral value is actually representable without exponent
+    # (has to be lower than 10 ^ precision)
+    if value == integral_value and integral_value < Decimal(pow(10, precision)):
+        return value.quantize(Decimal(1))
+    else:
+        return value.normalize()
+
+
 def value_to_decimal(value, precision=DEFAULT_PRECISION):
     """
     Converts a numeric value of arbitrary type to a Decimal, rounding if the input precision is smaller than the
@@ -32,7 +47,7 @@ def value_to_decimal(value, precision=DEFAULT_PRECISION):
     else:
         numeric_value = value
 
-    return Decimal('{:0.{precision}f}'.format(numeric_value, precision=precision))
+    return remove_exponent(Decimal('{:0.{precision}f}'.format(numeric_value, precision=precision)))
 
 
 def value_to_string(value, precision=DEFAULT_PRECISION):

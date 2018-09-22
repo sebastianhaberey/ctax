@@ -2,7 +2,7 @@
 # cryptotax configuration file
 #
 
-# the tax currency - all cost / revenue / profit items will be converted to and listed in tax currency
+# the tax currency - all cost / proceeds / profit items will be converted to and listed in tax currency
 #
 tax-currency: 'EUR'
 

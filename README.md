@@ -51,8 +51,8 @@ can be a bit more complex than it seems on first glance, which is why it's descr
 - **base currency:** the source currency in a conversion
 - **quote currency:** the target currency in a conversion
 - **cost of purchase:** money paid when buying an asset (in tax currency)
-- **revenue:** money received when selling an asset (in tax currency)
-- **profit / loss (P/L):** revenue minus cost of purchase (in tax currency)
+- **proceeds:** money received when selling an asset (in tax currency)
+- **profit / loss (P/L):** proceeds minus cost of purchase (in tax currency)
 
 ### Fees
 
@@ -154,4 +154,4 @@ in the raw data from the exchange together with ctax' results based on that raw 
 
 ## Acknowledgements
 
-Thank you to the people over at [ccxt](https://github.com/ccxt/ccxt) for doing such a great job.
+Thank you to the people over at [ccxt](https://github.com/ccxt/ccxt) for doing a great job.

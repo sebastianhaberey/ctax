@@ -1,8 +1,10 @@
-from collections import deque
+from collections import deque, defaultdict
 from decimal import Decimal
 from enum import Enum
+from functools import reduce
 
 from src.NumberUtils import currency_to_string
+from src.bo.Transaction import TransactionType
 
 
 class QueueType(Enum):
@@ -16,204 +18,196 @@ class QueueType(Enum):
 class BalanceQueue:
     """
     Queue that keeps a tab of amounts bought, their price, and the current balance.
-    When an amount is sold, its initial cost is calculated by FIFO (default) or LIFO principle.
-    If the initial cost cannot be fully determined (because there is not enough balance in the queue),
-    the amount that cannot be accounted for will be determined as well.
+    When an amount is sold, its cost and buying fees are calculated by FIFO (default) or LIFO principle.
     """
 
-    def __init__(self, queue_type=QueueType.FIFO):
+    def __init__(self, queue_type, fees_are_tax_deductible):
         self.queue_type = queue_type
-        self.deque = deque()
+        self.fees_are_tax_deductible = fees_are_tax_deductible
+        self.queues = defaultdict(lambda: deque())
 
-    def buy(self, amount_bought, price_bought):
-        if amount_bought == Decimal('0'):
-            return Decimal('0')
-        item = Item(amount_bought, price_bought)
-        self.deque.append(item)
-        return BuyResult(item)
+    def get_balance(self, currency):
+        """
+        Returns the balance for the specified currency.
+        """
 
-    def sell(self, amount_sold, price_sold):
+        return reduce(lambda a, b: a + b.amount, self.queues[currency], Decimal(0))
 
-        remainder = amount_sold
+    def trade(self, trade):
+        """
+        Simulates a trade.
+        :return: a SellInfo object with information about the selling part of the trade
+        """
+        sell = trade.get_transaction(TransactionType.SELL)
+        sell_info = self._sell(self.queues[sell.currency], trade)
+
+        buy = trade.get_transaction(TransactionType.BUY)
+        self._buy(self.queues[buy.currency], trade)
+
+        return sell_info
+
+    def _buy(self, queue, trade):
+        self._put(queue, Item(trade.get_transaction(TransactionType.BUY).amount, trade))
+
+    def _sell(self, queue, trade):
+
+        remaining_sell_amount = trade.get_transaction(TransactionType.SELL).amount
         items_bought = []
 
-        while remainder > Decimal('0'):
+        while remaining_sell_amount > Decimal('0'):
 
-            if self.is_empty():
+            if self._is_empty(queue):  # no bought items left but sell is not fully covered
+                items_bought.append(Item(remaining_sell_amount, None))
                 break
 
-            item = self.pop()
+            item = self._pop(queue, self.queue_type)
 
-            if remainder < item.amount:
-                items_bought.append(Item(remainder, item.price))
-                item.amount -= remainder
-                self.put_back(item)
-                remainder = Decimal('0')
+            if remaining_sell_amount < item.amount:  # sell amount is entirely covered by bought items
+                items_bought.append(Item(remaining_sell_amount, item.trade))
+                item.amount -= remaining_sell_amount
+                self._put_back(queue, self.queue_type, item)
                 break
-            elif remainder >= item.amount:
+            elif remaining_sell_amount >= item.amount:  # bought item is fully consumed by sell
                 items_bought.append(item)
-                remainder -= item.amount
+                remaining_sell_amount -= item.amount
 
-        return SellResult(amount_sold, price_sold, items_bought, remainder)
+        return SellInfo(trade, items_bought)
 
-    def fee(self, amount, exchange_rate):
-        return FeeResult(self.sell(amount, exchange_rate))
+    @staticmethod
+    def _is_empty(queue):
+        return len(queue) == 0
 
-    def get_balance(self):
-        balance = Decimal('0')
-        for expense in self.deque:
-            balance += expense.amount
-        return balance
-
-    def is_empty(self):
-        return len(self.deque) == 0
-
-    def pop(self):
-        if self.queue_type == QueueType.FIFO:
-            item = self.deque.popleft()
+    @staticmethod
+    def _pop(queue, queue_type):
+        if queue_type == QueueType.FIFO:
+            item = queue.popleft()
         else:
-            item = self.deque.pop()
+            item = queue.pop()
         return item
 
-    def put_back(self, item):
-        if self.queue_type == QueueType.FIFO:
-            self.deque.appendleft(item)
+    @staticmethod
+    def _put_back(queue, queue_type, item):
+        if queue_type == QueueType.FIFO:
+            queue.appendleft(item)
         else:
-            self.deque.append(item)
+            queue.append(item)
+
+    @staticmethod
+    def _put(queue, item):
+        queue.append(item)
+
+    def __str__(self) -> str:
+        amounts = []
+        for currency in self.queues:
+            amounts.append(currency_to_string(self.queues[currency].get_balance(), currency))
+        return f'{amounts}'
 
 
-class BuyResult:
+class SellInfo:
     """
-    Information about a buy action.
-    """
-
-    def __init__(self, item) -> None:
-        self.item = item
-
-    def render(self, currency, tax_currency):
-        return (f'bought {currency_to_string(self.item.amount, currency)} '
-                f'@ {currency_to_string(self.item.price, tax_currency)}/{currency} '
-                f'({currency_to_string(self.item.cost, tax_currency)})')
-
-
-class FeeResult:
-    """
-    Information about a fee action.
+    Information about a sell action, such as cost / proceeds, profit / loss, etc.
     """
 
-    def __init__(self, sell_result) -> None:
-        self.sell_result = sell_result
-
-    def render(self, currency, tax_currency):
-
-        out = f'fee {currency_to_string(self.sell_result.amount_sold, currency)} ' \
-              f'@ {currency_to_string(self.sell_result.price_sold, tax_currency)} ' \
-              f'({currency_to_string(self.sell_result.revenue_sold, tax_currency)})'
-
-        if self.sell_result.found_unaccounted():
-            out += f', ' \
-                   f'unaccounted {currency_to_string(self.sell_result.amount_unaccounted, currency)} ' \
-                   f'@ {currency_to_string(self.sell_result.price_sold, tax_currency)} ' \
-                   f'({currency_to_string(self.sell_result.revenue_unaccounted, tax_currency)})'
-
-        return out
-
-
-class SellResult:
-    """
-    Information about a sell action, such as price paid, initial cost, profit / loss, etc.
-    """
-
-    def __init__(self, amount_sold, price_sold, items_bought, amount_unaccounted):
-        self.amount_sold = amount_sold  # the amount sold (in original currency)
-        self.price_sold = price_sold  # the price for which the amount was sold (in tax currency)
-        self.items_bought = items_bought  # list of buys that correspond to the amount sold (in tax currency)
-        self.amount_unaccounted = amount_unaccounted  # amount without corresponding buys (in original currency)
+    def __init__(self, sell_trade, buy_items):
+        self.sell_trade = sell_trade  # the trade representing the sale
+        self.buy_items = buy_items  # list of buys from the past associated with the sale
 
     @property
-    def amount_bought(self):
+    def amount(self):
         """
-        Amount that was bought in the past and corresponds to the sale in question (in original currency).
+        The amount sold (in original currency).
         """
-        amount_bought = Decimal('0.0')
-        for item in self.items_bought:
-            amount_bought += item.amount
-        return amount_bought
+        return self.sell_trade.get_transaction(TransactionType.SELL).amount
 
     @property
-    def cost_bought(self):
+    def cost(self):
         """
-        The cost of the amount when it was bought in the past (in tax currency).
+        Cost when buying (in tax currency).
         """
-        cost_bought = Decimal('0.0')
-        for item in self.items_bought:
-            cost_bought += item.cost
-        return cost_bought
+
+        return reduce(lambda a, b: a + b.cost, self.buy_items, Decimal(0))  # summarize cost of all buy items
 
     @property
-    def price_bought(self):
+    def buying_fees(self):
         """
-        The price of the amount when it was bought in the past (in tax currency).
+        Buying fees (in tax currency).
         """
-        if self.amount_bought == Decimal('0.0'):
-            return Decimal('0.0')
-        return self.cost_bought / self.amount_bought
+
+        return reduce(lambda a, b: a + b.fee, self.buy_items, Decimal(0))  # summarize fees of all buy items
 
     @property
-    def revenue_sold(self):
+    def proceeds(self):
         """
-        The revenue of the amount when it was sold (in tax currency). Includes unaccounted revenue.
+        Proceeds when selling (in tax currency).
         """
-        return self.amount_sold * self.price_sold
+        return self.sell_trade.get_transaction(TransactionType.SELL).converted_amount
 
     @property
-    def revenue_unaccounted(self):
+    def selling_fees(self):
         """
-        Revenue for which no cost could be determined.
+        Selling fees (in tax currency).
         """
-        return self.amount_unaccounted * self.price_sold
+        return self.sell_trade.get_transaction(TransactionType.FEE).converted_amount
 
     @property
     def pl(self):
         """
-        Profit / loss of the sale (in tax currency). This includes profit from unaccounted revenue.
+        Profit / loss of the sale (in tax currency).
+        This is calculated by subtracting the cost of purchase from the proceeds.
+        If any part of the amount that was sold could not be accounted for with a corresponding buy action,
+        that means the cost of purchase for that part was zero, and the profit for that part was 100 percent.
         """
-        return self.revenue_sold - self.cost_bought
-
-    def found_unaccounted(self):
-        """
-        Returns True if a part of the amount could not be accounted for.
-        """
-        return self.amount_unaccounted > Decimal('0.0')
+        return (self.proceeds - self.selling_fees) - (self.cost + self.buying_fees)
 
     def render(self, currency, tax_currency):
-
-        out = f'sold {currency_to_string(self.amount_sold, currency)} ' \
-              f'@ {currency_to_string(self.price_sold, tax_currency)}/{currency} ' \
-              f'({currency_to_string(self.revenue_sold, tax_currency)}), ' \
-              f'bought {currency_to_string(self.amount_bought, currency)} ' \
-              f'@ {currency_to_string(self.price_bought, tax_currency)}/{currency} ' \
-              f'({currency_to_string(self.cost_bought, tax_currency)}), '
-
-        if self.found_unaccounted():
-            out += f'unaccounted {currency_to_string(self.amount_unaccounted, currency)} ' \
-                   f'@ {currency_to_string(self.price_sold, tax_currency)}/{currency} ' \
-                   f'({currency_to_string(self.revenue_unaccounted, tax_currency)}), '
-
-        out += f'P/L: {currency_to_string(self.pl, tax_currency)}'
+        out = f'total: ' \
+              f'sold {currency_to_string(self.amount, currency)} ' \
+              f'cost {currency_to_string(self.cost, tax_currency)}, ' \
+              f'proceeds {currency_to_string(self.proceeds, tax_currency)} ' \
+              f'P/L: {currency_to_string(self.pl, tax_currency)}'
         return out
 
 
 class Item:
     """
-    Represents an amount bought in the past (in original currency)
-    and the price that was paid (in tax currency).
+    Represents an percentage of a an amount bought in the past, and the corresponding trade.
     """
 
-    def __init__(self, amount, price):
+    def __init__(self, amount, trade):
+        """
+        :param trade: corresponding trade or None if unaccounted
+        """
         self.amount = amount
-        self.price = price
+        self.trade = trade
+
+    @property
+    def percent(self):
+        """
+        How much of the trade amount this item represents, in percent (0.0 - 1.0).
+        """
+        if self.trade is None:  # no trade means unaccounted
+            return Decimal('1.0')  # 100 percent of unaccounted trade are relevant
+
+        return self.amount / self.trade.get_transaction(TransactionType.BUY).amount
 
     @property
     def cost(self):
-        return self.amount * self.price
+        """
+        The cost of the item (converted to tax currency).
+        """
+
+        if self.trade is None:  # no trade means unaccounted
+            return Decimal('0.0')  # unaccounted means no cost
+
+        return self.percent * self.trade.get_transaction(TransactionType.SELL).converted_amount
+
+    @property
+    def fee(self):
+        """
+        The cost of the item (converted to tax currency).
+        """
+
+        if self.trade is None:  # no trade means unaccounted
+            return Decimal('0.0')  # unaccounted means no fee
+
+        return self.percent * self.trade.get_transaction(TransactionType.FEE).converted_amount

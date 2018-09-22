@@ -48,7 +48,7 @@ class Transaction(Base):
     timestamp = Column(UtcDateTime)
 
     # the amount converted to tax currency
-    _taxable_amount = Column('tax_amount', Integer)
+    _converted_amount = Column('converted_amount', Integer)
 
     # the persistence id of the (tax currency) exchange rate that this transaction is associated with
     # if exchange rates are deleted, the foreign key here is set to NULL by DB
@@ -66,12 +66,12 @@ class Transaction(Base):
         self._amount = None if value is None else value_to_scaled_integer(value, 10)
 
     @property
-    def taxable_amount(self):
-        return None if self._taxable_amount is None else scaled_integer_to_decimal(self._taxable_amount, 10)
+    def converted_amount(self):
+        return None if self._converted_amount is None else scaled_integer_to_decimal(self._converted_amount, 10)
 
-    @taxable_amount.setter
-    def taxable_amount(self, value):
-        self._taxable_amount = None if value is None else value_to_scaled_integer(value, 10)
+    @converted_amount.setter
+    def converted_amount(self, value):
+        self._converted_amount = None if value is None else value_to_scaled_integer(value, 10)
 
     def get_equality_relevant_items(self):
         # id and group id are not relevant because they are set by the persistence layer
@@ -96,8 +96,8 @@ class Transaction(Base):
             out += ', '
             out += f'exchange rate: {self.exchange_rate.render(self.currency, tax_currency)}'
 
-        if self.taxable_amount is not None:
+        if self.converted_amount is not None:
             out += ', '
-            out += f'taxable amount: {currency_to_string(self.taxable_amount, tax_currency)}'
+            out += f'amount converted to tax currency: {currency_to_string(self.converted_amount, tax_currency)}'
 
         return out

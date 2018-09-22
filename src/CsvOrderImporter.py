@@ -67,7 +67,6 @@ class CsvOrderImporter(object):
             return None  # skip rows where date is outside tax year
 
         transactions = []
-        # currencies = exchange.currencies
 
         base = Transaction()
         base.currency = column.get_currency('base-currency')
