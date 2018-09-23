@@ -19,7 +19,8 @@ TESTDATA_CONFIGURATION = """
 
     - id: 'test-file-1'
       file: '${FILENAME1}'
-      description: 'some description'
+      short-description: 'short description'
+      long-description: 'long description'
       base-currency: 'EUR'
       delimiter: ','
       quotechar: '"'
@@ -28,7 +29,8 @@ TESTDATA_CONFIGURATION = """
 
     - id: 'test-file-2'
       file: '${FILENAME2}'
-      description: 'some other description'
+      short-description: 'other short description'
+      long-description: 'other long description'
       base-currency: 'EUR'
       delimiter: ','
       quotechar: '"'
@@ -83,4 +85,5 @@ class TestExchangeRates(TestCase):
         self.assertEqual(datetime(2018, 5, 10, tzinfo=UTC), rate.timestamp)
         source = rate.source
         self.assertEqual('test-file-1', source.source_id)
-        self.assertEqual('some description', source.description)
+        self.assertEqual('short description', source.short_description)
+        self.assertEqual('long description', source.long_description)

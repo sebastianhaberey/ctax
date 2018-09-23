@@ -6,13 +6,13 @@ from sqlalchemy_utc import UtcDateTime
 
 from src.EqualityUtils import equals, calculate_hash
 from src.NumberUtils import scaled_integer_to_decimal, value_to_scaled_integer, currency_to_string
-from src.bo.ExchangeRate import ExchangeRate
 from src.bo.Base import Base
+from src.bo.ExchangeRate import ExchangeRate
 
 
 class TransactionType(enum.Enum):
     """
-    Type of transaction this group represents.
+    Type of transaction.
     """
     BUY = 0
     SELL = 1
@@ -74,7 +74,7 @@ class Transaction(Base):
         self._converted_amount = None if value is None else value_to_scaled_integer(value, 10)
 
     def get_equality_relevant_items(self):
-        # id and group id are not relevant because they are set by the persistence layer
+        # id and order id are not relevant because they are set by the persistence layer
         # and will not be available in all situations, leading to false negatives
         return [self.type, self._amount, self.currency]
 
@@ -86,7 +86,7 @@ class Transaction(Base):
 
     def __str__(self) -> str:
         return f'id: {self.id}, type: {self.type.name}, ' \
-               f'amount: {currency_to_string(self.amount, self.currency)}'
+               f'amount: {currency_to_string(self.amount, self.currency, add_symbol=True)}'
 
     def render_with_tax(self, tax_currency):
 

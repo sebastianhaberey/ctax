@@ -58,6 +58,8 @@ def import_orders(trades_raw, exchange_name, date_from, date_to, currency_lookup
         order = orders[order_id]
 
         trade = Trade(trade_raw['id'], timestamp, transactions)
+        # false positive (apparently PyCharm does not recognize the ORM relationship collection correctly)
+        # noinspection PyUnresolvedReferences
         order.trades.append(trade)
 
     return list(orders.values())

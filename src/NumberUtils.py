@@ -93,17 +93,17 @@ def scaled_integer_to_decimal(value, precision=DEFAULT_PRECISION):
     return decimal / Decimal(pow(10, precision))
 
 
-def currency_to_string(value, currency=None, no_symbol=False):
+def currency_to_string(value, currency=None, add_symbol=False):
     """
     Returns a human readable representation of the specified value with correct precision and currency symbol.
     Example: '192.50000 BTC'
     """
     currency_string = value_to_string(value, get_precision(currency, DEFAULT_OUTPUT_PRECISION))
 
-    if currency is None or no_symbol is True:
-        return currency_string
+    if add_symbol is True:
+        return f'{currency_string} {currency}'
 
-    return f'{currency_string} {currency}'
+    return currency_string
 
 
 def get_precision(currency, default):

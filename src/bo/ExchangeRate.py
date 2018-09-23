@@ -6,8 +6,8 @@ from sqlalchemy_utc import UtcDateTime
 
 from src.DateUtils import date_and_time_to_string
 from src.NumberUtils import scaled_integer_to_decimal, value_to_scaled_integer, currency_to_string
-from src.bo.ExchangeRateSource import ExchangeRateSource
 from src.bo.Base import Base
+from src.bo.ExchangeRateSource import ExchangeRateSource
 
 
 class ExchangeRate(Base):
@@ -50,8 +50,15 @@ class ExchangeRate(Base):
         if (base_currency == self.base_currency) and (quote_currency == self.quote_currency):
             return self.rate
         elif (quote_currency == self.base_currency) and (base_currency == self.quote_currency):
-            return Decimal(1) / self.rate
+            return Decimal('1') / self.rate
         return None
+
+    def can_convert(self, currency_a, currency_b):
+        """
+        Returns True if the exchange rate can convert between the two currencys
+        """
+        return ((currency_a == self.base_currency) and (currency_b == self.quote_currency)) or \
+               ((currency_b == self.base_currency) and (currency_a == self.quote_currency))
 
     @property
     def rate(self):

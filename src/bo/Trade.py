@@ -1,3 +1,5 @@
+from functools import reduce
+
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
@@ -8,29 +10,19 @@ from src.Error import Error
 from src.bo.Base import Base
 
 
-def sort_by_time(trades):
+def sort_trades_by_time(trades):
     """
     Sorts list of trades by time (earliest first).
     """
     return sorted(trades, key=lambda trade: trade.timestamp)
 
 
-def get_earliest_time(trades):
+def get_earliest_trade(trades):
     """
-    Gets the earliest time from a list of trades.
+    Gets the earliest trade from a list of trades.
     """
-    if len(trades) == 0:
-        return None
-    return (sort_by_time(trades)[0]).timestamp
 
-
-def get_latest_time(trades):
-    """
-    Gets the latest time from a list of trades.
-    """
-    if len(trades) == 0:
-        return None
-    return (sort_by_time(trades)[-1]).timestamp
+    return reduce(lambda trade_a, trade_b: trade_a if trade_a.timestamp < trade_b.timestamp else trade_b, trades)
 
 
 class Trade(Base):
@@ -61,7 +53,8 @@ class Trade(Base):
     def __init__(self, source_id, timestamp, transactions):
         self.source_id = source_id
         self.timestamp = timestamp
-        self.transactions.extend(transactions)
+        if transactions is not None:
+            self.transactions.extend(transactions)
 
     def __str__(self) -> str:
         return f'id: {self.id}, ' \

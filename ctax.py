@@ -6,17 +6,23 @@ from src.Application import init_logging, init_db, save_orders, load_orders, fin
 from src.Configuration import Configuration
 
 
-def get_mode_from_command_line():
+def get_command_line_arguments():
     parser = argparse.ArgumentParser(description='Crypto currency tax calculator.')
-    parser.add_argument('mode', help='operation mode',
-                        choices=['import-trades', 'import-exchange-rates', 'calculate-profit'])
-    args = parser.parse_args()
-    return args.mode
+    subparsers = parser.add_subparsers(dest='mode')
+
+    subparsers.add_parser('import-trades', help='import trades')
+    subparsers.add_parser('import-exchange-rates', help='import exchange rates for all transactions')
+    parser_calculate_profit = subparsers.add_parser('calculate-profit', help='calculate profit / loss')
+
+    parser_calculate_profit.add_argument('-o', '--output-file', help='output file')
+
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
 
-    mode = get_mode_from_command_line()
+    arguments = get_command_line_arguments()
+    mode = arguments.mode
 
     configuration = Configuration.from_file('settings.yml')
     init_logging(configuration)
@@ -41,6 +47,6 @@ if __name__ == "__main__":
 
         logging.info('calculating profit / loss')
         orders = load_orders(session)
-        calculate_profit_loss(orders, configuration)
+        calculate_profit_loss(orders, configuration, arguments.output_file)
 
     logging.info('done')

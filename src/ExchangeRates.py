@@ -2,6 +2,7 @@ import csv
 import logging
 import time
 from datetime import timedelta
+from decimal import Decimal
 
 from cryptocompy import price
 from forex_python.converter import CurrencyRates, RatesNotAvailableError
@@ -46,9 +47,12 @@ class ExchangeRates:
         self._cryptocompare_already_queried = []
 
         self._sources = {
-            'cryptocompare': ExchangeRateSource('cryptocompare', 'crypto currency exchange rate queried from '
-                                                                 'https://min-api.cryptocompare.com/'),
-            'ratesapi': ExchangeRateSource('ratesapi', 'fiat exchange rate queried from https://ratesapi.io/api/')
+            'cryptocompare': ExchangeRateSource('cryptocompare', 'cryptocompare.com',
+                                                'crypto currency exchange rate queried from '
+                                                'https://min-api.cryptocompare.com/'),
+            'ratesapi': ExchangeRateSource('ratesapi', 'ratesapi.io',
+                                           'fiat exchange rate queried from https://ratesapi.io/api/'),
+            'implicit': ExchangeRateSource('implicit', '(implicit)', 'implicit exchange rate')
         }
 
         self.load_exchange_rates_from_configured_files(configuration)
@@ -61,6 +65,9 @@ class ExchangeRates:
         """
 
         exchange_rate = None
+
+        if base_currency == quote_currency:  # same currency: get implicit exchange rate of 1
+            return self.get_implicit_exchange_rate(base_currency, quote_currency, Decimal('1'), timestamp)
 
         if self._exchange_rates is not None:
             exchange_rate = self._get_exchange_rate_from_memory(base_currency, quote_currency, timestamp)
@@ -80,6 +87,9 @@ class ExchangeRates:
             return self._get_exchange_rate_from_ratesapi(base_currency, quote_currency, timestamp)
 
         return None
+
+    def get_implicit_exchange_rate(self, base_currency, quote_currency, rate, timestamp):
+        return ExchangeRate(base_currency, quote_currency, rate, timestamp, self._sources['implicit'])
 
     def _get_exchange_rate_from_memory(self, base_currency, quote_currency, timestamp):
         """
@@ -185,7 +195,8 @@ class ExchangeRates:
         """
 
         source_id = section['id']
-        description = section['description']
+        short_description = section['short-description']
+        long_description = section['long-description']
         file = section['file']
         delimiter = section['delimiter']
         encoding = section['encoding']
@@ -196,7 +207,7 @@ class ExchangeRates:
         if source_id in self._sources:
             raise ExchangeRateImportError(f'source with id "{source_id}" is already defined')
 
-        source = ExchangeRateSource(source_id, description)
+        source = ExchangeRateSource(source_id, short_description, long_description)
         self._sources[source_id] = source
 
         if base_currency not in self._exchange_rates:

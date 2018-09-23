@@ -143,14 +143,15 @@ input data.
 
 ##### Fees: Conclusion
 
-As with any software, ctax' results are only as good as its input data. 
-The data received from exchanges may be inconsistent regarding fees and may not always 
-reflect the reality 100 percent. I observed several cases like #3 and #4 above, 
-where the API data would say one thing, but the downloaded ledger CSV data would say another. 
+The data received from exchanges may not accurately reflect what happened on the exchange.
+I observed several cases where the API and downloaded trade CSV data would 
+say one thing, but the downloaded ledger CSV data would say something else. 
 
-My take on this is that the data supplied officially by the exchange should be good
-enough for the tax declaration, this way or the other. I believe the best way is to hand 
-in the raw data from the exchange together with ctax' results based on that raw data.
+In this case, the following issues may arise:
+
+* fees imported by ctax differ from actual fees
+* balances internally maintained by ctax are inconsistent with balances shown by exchanges
+* ctax detects unaccounted items due to inaccurate balances
 
 ## Acknowledgements
 

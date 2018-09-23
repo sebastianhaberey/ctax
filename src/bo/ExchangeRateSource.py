@@ -16,9 +16,13 @@ class ExchangeRateSource(Base):
     # user-side id to describe the source
     source_id = Column(String)
 
-    # textual description of source
-    description = Column(String)
+    # short textual description of source
+    short_description = Column(String)
 
-    def __init__(self, source_id, description):
+    # long textual description of source
+    long_description = Column(String)
+
+    def __init__(self, source_id, short_description, long_description):
         self.source_id = source_id
-        self.description = description
+        self.short_description = short_description
+        self.long_description = long_description

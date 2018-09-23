@@ -3,14 +3,14 @@ from sqlalchemy.orm import relationship
 
 from src.EqualityUtils import equals, calculate_hash
 from src.bo.Base import Base
-from src.bo.Trade import get_earliest_time
+from src.bo.Trade import get_earliest_trade
 
 
-def sort_by_time(orders):
+def sort_orders_by_time(orders):
     """
-    Sorts list of orders by timestamp of their trades (order with earliest trade first).
+    Sorts orders by timestamp of their trades (order with earliest trade first).
     """
-    return sorted(orders, key=lambda order: get_earliest_time(order.trades))
+    return sorted(orders, key=lambda order: get_earliest_trade(order.trades).timestamp)
 
 
 class Order(Base):
