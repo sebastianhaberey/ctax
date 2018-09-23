@@ -6,7 +6,7 @@ from datetime import timedelta
 from cryptocompy import price
 from forex_python.converter import CurrencyRates, RatesNotAvailableError
 
-from src.DateUtils import parse_date, date_to_simple_string
+from src.DateUtils import parse_date, date_to_string, get_start_of_year, get_start_of_year_after
 from src.NumberUtils import value_to_decimal
 from src.bo.ExchangeRate import ExchangeRate
 from src.bo.ExchangeRateSource import ExchangeRateSource
@@ -40,8 +40,8 @@ class ExchangeRates:
     def __init__(self, configuration):
         self._query_apis = configuration.get_mandatory('query-exchange-rate-apis')
         self._tax_year = configuration.get_mandatory('tax-year')
-        self._date_from = configuration.get_date_from()
-        self._date_to = configuration.get_date_to()
+        self._date_from = get_start_of_year(self._tax_year)
+        self._date_to = get_start_of_year_after(self._tax_year)
         self._exchange_rates = {}
         self._cryptocompare_already_queried = []
 
@@ -105,8 +105,8 @@ class ExchangeRates:
         age = abs(closest_timestamp - timestamp)
         if age > timedelta(days=max_days):
             logging.info(f'warning: closest exchange rate found {base_currency}/{quote_currency} '
-                         f'for {date_to_simple_string(timestamp)} '
-                         f'is from {date_to_simple_string(closest_timestamp)} '
+                         f'for {date_to_string(timestamp)} '
+                         f'is from {date_to_string(closest_timestamp)} '
                          f'({age.days} day(s))')
 
         return self._exchange_rates[a][b][closest_timestamp]
@@ -157,7 +157,7 @@ class ExchangeRates:
         """
 
         logging.info(f'querying ratesapi.io for exchange rate {base_currency}/{quote_currency} '
-                     f'at {date_to_simple_string(timestamp)}')
+                     f'at {date_to_string(timestamp)}')
 
         try:
             rate = CurrencyRates(force_decimal=True).get_rate(base_currency, quote_currency, date_obj=timestamp)

@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
 
-from src.DateUtils import date_to_simple_string_with_time
+from src.DateUtils import date_and_time_to_string
 from src.EqualityUtils import equals, calculate_hash
 from src.Error import Error
 from src.bo.Base import Base
@@ -66,7 +66,7 @@ class Trade(Base):
     def __str__(self) -> str:
         return f'id: {self.id}, ' \
                f'source id: {self.source_id}, ' \
-               f'timestamp: {date_to_simple_string_with_time(self.timestamp)}'
+               f'timestamp: {date_and_time_to_string(self.timestamp)}'
 
     def get_equality_relevant_items(self):
         items = [self.source_id, self.timestamp]

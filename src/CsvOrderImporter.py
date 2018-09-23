@@ -4,7 +4,7 @@ from decimal import Decimal
 import ccxt
 
 from src.ColumnReader import column_reader
-from src.DateUtils import parse_date
+from src.DateUtils import parse_date, get_start_of_year, get_start_of_year_after
 from src.bo.Order import Order
 from src.bo.Trade import Trade
 from src.bo.Transaction import Transaction, TransactionType
@@ -30,8 +30,9 @@ class CsvOrderImporter(object):
         super().__init__()
 
         self._configuration = configuration
-        self._date_from = configuration.get_date_from()
-        self._date_to = configuration.get_date_to()
+        self._tax_year = configuration.get_mandatory('tax-year')
+        self._date_from = get_start_of_year(self._tax_year)
+        self._date_to = get_start_of_year_after(self._tax_year)
 
     def import_orders(self):
 

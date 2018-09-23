@@ -1,8 +1,5 @@
 import os
-from datetime import datetime
 from unittest import TestCase
-
-from dateutil.tz import UTC
 
 from src.Configuration import Configuration
 from src.Error import Error
@@ -57,11 +54,3 @@ class TestConfiguration(TestCase):
     def test_exists(self):
         configuration = Configuration.from_string(TESTDATA_CONFIGURATION_TEXT)
         self.assertTrue(configuration.is_true('some-value'))
-
-    def test_get_date_from(self):
-        configuration = Configuration.from_string(TESTDATA_CONFIGURATION_TEXT)
-        self.assertEqual(datetime(2018, 1, 1, 0, 0, 0, 0, tzinfo=UTC), configuration.get_date_from())
-
-    def test_get_date_to(self):
-        configuration = Configuration.from_string(TESTDATA_CONFIGURATION_TEXT)
-        self.assertEqual(datetime(2019, 1, 1, 0, 0, 0, 0, tzinfo=UTC), configuration.get_date_to())

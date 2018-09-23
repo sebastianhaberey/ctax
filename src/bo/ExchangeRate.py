@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
 
-from src.DateUtils import date_to_simple_string_with_time
+from src.DateUtils import date_and_time_to_string
 from src.NumberUtils import scaled_integer_to_decimal, value_to_scaled_integer, currency_to_string
 from src.bo.ExchangeRateSource import ExchangeRateSource
 from src.bo.Base import Base
@@ -70,4 +70,4 @@ class ExchangeRate(Base):
 
     def render(self, base_currency, quote_currency):
         return f'{currency_to_string(self.get_rate(base_currency, quote_currency), quote_currency)}/{base_currency} ' \
-               f'({self.source.source_id}, {date_to_simple_string_with_time(self.timestamp)})'
+               f'({self.source.source_id}, {date_and_time_to_string(self.timestamp)})'

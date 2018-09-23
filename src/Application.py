@@ -11,6 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from src.BalanceQueue import BalanceQueue, QueueType
 from src.CcxtOrderImporter import CcxtOrderImporter
 from src.CsvOrderImporter import CsvOrderImporter
+from src.DateUtils import get_start_of_year, get_start_of_year_after
 from src.ExchangeRates import ExchangeRates
 from src.bo.Base import Base
 from src.bo.ExchangeRateSource import ExchangeRateSource
@@ -90,8 +91,9 @@ def query_transactions(configuration):
         exchange.apiKey = configuration.get_mandatory('exchanges', exchange_id, 'key')
         exchange.secret = configuration.get_mandatory('exchanges', exchange_id, 'secret')
         symbols = configuration.get('exchanges', exchange_id, 'symbols', default=None)
-        date_from = configuration.get_date_from()
-        date_to = configuration.get_date_to()
+        tax_year = configuration.get_mandatory('tax-year')
+        date_from = get_start_of_year(tax_year)
+        date_to = get_start_of_year_after(tax_year)
         while True:
             try:
                 orders.extend(CcxtOrderImporter(exchange).fetch_orders(date_from, date_to, symbols=symbols))
@@ -213,8 +215,9 @@ def calculate_profit_loss(orders, configuration):
     tax_currency = configuration.get_mandatory('tax-currency')
     queue = BalanceQueue(tax_currency, QueueType.FIFO)
 
-    date_from = configuration.get_date_from()
-    date_to = configuration.get_date_to()
+    tax_year = configuration.get_mandatory('tax-year')
+    date_from = get_start_of_year(tax_year)
+    date_to = get_start_of_year_after(tax_year)
 
     logging.info(f'date / time, '
                  f'transaction id, '
