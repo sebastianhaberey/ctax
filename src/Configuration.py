@@ -27,7 +27,7 @@ class Configuration:
 
     def __init__(self, stream):
         try:
-            self.configuration = yaml.load(stream)
+            self.configuration = yaml.load(stream, Loader=yaml.FullLoader)
         except yaml.YAMLError:
             raise Error(f'error parsing configuration: {stream}') from None
 

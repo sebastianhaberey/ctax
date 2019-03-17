@@ -1,8 +1,7 @@
-setuptools==40.2.0
-ccxt==1.17.295
+ccxt==1.18.368
 cryptocompy3==0.1.2
-python_dateutil==2.7.3
-forex_python==1.1
-SQLAlchemy==1.2.11
-sqlalchemy_utc==0.10.0
-PyYAML==3.13
+python-dateutil==2.8.0
+forex-python==1.3
+SQLAlchemy==1.3.1
+SQLAlchemy-Utc==0.10.0
+PyYAML==5.1
